@@ -2,10 +2,10 @@
 
 namespace ModernToDoList.Api.Domain;
 
-public class AppUser
+public class User
 {
     public Guid Id { get; init; }
     public String Username { get; init; }
     public String PasswordHash { get; init; }
-    public 
+    public String EmailAddress { get; init; }
 }

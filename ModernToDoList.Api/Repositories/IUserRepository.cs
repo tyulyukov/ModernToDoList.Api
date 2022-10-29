@@ -2,7 +2,7 @@
 
 namespace ModernToDoList.Api.Repositories;
 
-public interface IUserCrudRepository : ICrudRepository<User>
+public interface IUserRepository : ICrudRepository<User>
 {
     
 }

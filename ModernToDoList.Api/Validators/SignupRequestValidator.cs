@@ -1,6 +1,13 @@
-﻿namespace ModernToDoList.Api.Validators;
+﻿using FluentValidation;
+using ModernToDoList.Api.Domain.Contracts.Requests;
 
-public class SignupRequestValidator
+namespace ModernToDoList.Api.Validators;
+
+public class SignupRequestValidator : AbstractValidator<SignupRequest>
 {
-    
+    public SignupRequestValidator()
+    {
+        RuleFor(x => x.Password).NotEmpty();
+        RuleFor(x => x.Username).NotEmpty();
+    }
 }

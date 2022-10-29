@@ -4,4 +4,5 @@ public class SignupRequest
 {
     public String Username { get; init; }
     public String Password { get; init; }
+    public String EmailAddress { get; init; }
 }

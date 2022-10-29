@@ -1,12 +1,7 @@
 ﻿using System.Data;
 using Npgsql;
 
-namespace ModernToDoList.Api.Domain.Database;
-
-public interface IDbConnectionFactory
-{
-    public Task<IDbConnection> CreateConnectionAsync();
-}
+namespace ModernToDoList.Api.Database.Factories;
 
 public class PostgresConnectionFactory : IDbConnectionFactory
 {

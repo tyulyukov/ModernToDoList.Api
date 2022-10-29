@@ -1,6 +1,6 @@
 ﻿using Dapper;
+using ModernToDoList.Api.Database.Factories;
 using ModernToDoList.Api.Domain;
-using ModernToDoList.Api.Domain.Database;
 
 namespace ModernToDoList.Api.Repositories;
 

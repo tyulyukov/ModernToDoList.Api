@@ -2,7 +2,7 @@
 using FluentValidation;
 using ModernToDoList.Api.Domain.Contracts.Requests;
 
-namespace ModernToDoList.Api.Validation.Validators;
+namespace ModernToDoList.Api.Validation;
 
 public class SignupRequestValidator : Validator<SignupRequest>
 {

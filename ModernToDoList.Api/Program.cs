@@ -5,7 +5,9 @@ using FluentMigrator.Runner.Processors;
 using ModernToDoList.Api.Database.Factories;
 using ModernToDoList.Api.Database.Migrations;
 using ModernToDoList.Api.Domain.Contracts.Responses;
+using ModernToDoList.Api.Middlewares;
 using ModernToDoList.Api.Repositories;
+using ModernToDoList.Api.Services;
 using ModernToDoList.Api.Validation;
 
 var builder = WebApplication.CreateBuilder();
@@ -15,6 +17,8 @@ builder.Services.AddSwaggerDoc();
 builder.Services.AddSingleton<IDbConnectionFactory>(_ =>
     new PostgresConnectionFactory(builder.Configuration.GetValue<string>("Database:ConnectionString")));
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
+builder.Services.AddSingleton<IAuthService, AuthService>();
+builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
 
 builder.Services
     .AddLogging(lb => lb.AddDebug().AddFluentMigratorConsole())

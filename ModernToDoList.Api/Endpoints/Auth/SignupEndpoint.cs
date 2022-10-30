@@ -1,17 +1,19 @@
 ﻿using FastEndpoints;
 using ModernToDoList.Api.Domain;
 using ModernToDoList.Api.Domain.Contracts.Requests;
+using ModernToDoList.Api.Domain.Mappers;
 using ModernToDoList.Api.Repositories;
+using ModernToDoList.Api.Services;
 
 namespace ModernToDoList.Api.Endpoints.Auth;
 
 public class SignupEndpoint : Endpoint<SignupRequest>
 {
-    private readonly IUserRepository _userRepository;
+    private readonly IAuthService _authService;
 
-    public SignupEndpoint(IUserRepository userRepository)
+    public SignupEndpoint(IAuthService authService)
     {
-        _userRepository = userRepository;
+        _authService = authService;
     }
 
     public override void Configure()
@@ -22,15 +24,7 @@ public class SignupEndpoint : Endpoint<SignupRequest>
 
     public override async Task HandleAsync(SignupRequest req, CancellationToken ct)
     {
-        // TODO mapper for SignupRequest and User
-        await _userRepository.CreateAsync(new User
-        {
-            Id = Guid.NewGuid(),
-            Username = req.Username,
-            PasswordHash = req.Password,
-            EmailAddress = req.EmailAddress
-        });
-
+        await _authService.SignupAsync(req);
         await SendAsync("Hello", 200, ct);
     }
 }

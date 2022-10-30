@@ -1,8 +1,8 @@
-﻿namespace ModernToDoList.Api.Domain;
+﻿namespace ModernToDoList.Api.Repositories.Dto;
 
-public class User
+public class UserDto
 {
-    public Guid Id { get; init; }
+    public String Id { get; init; }
     public String Username { get; init; }
     public String PasswordHash { get; init; }
     public String EmailAddress { get; init; }

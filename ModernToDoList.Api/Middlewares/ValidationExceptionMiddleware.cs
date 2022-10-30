@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using ModernToDoList.Api.Domain.Contracts.Responses;
 
-namespace ModernToDoList.Api.Validation;
+namespace ModernToDoList.Api.Middlewares;
 
 public class ValidationExceptionMiddleware
 {

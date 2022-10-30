@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using ModernToDoList.Api.Database.Factories;
 using ModernToDoList.Api.Domain;
+using ModernToDoList.Api.Repositories.Dto;
 
 namespace ModernToDoList.Api.Repositories;
 
@@ -18,8 +19,9 @@ public class UserRepository : IUserRepository
     {
         using var connection = await _connectionFactory.CreateConnectionAsync();
         var result = await connection.ExecuteAsync(
-            @$"INSERT INTO {_tableName} (Id, Username, PasswordHash, EmailAddress) 
-            VALUES (@Id, @Username, @PasswordHash, @EmailAddress)",
+            @$"INSERT INTO {_tableName} (Id, Username, PasswordHash, EmailAddress, EmailAddressConfirmed,
+                             CreatedAt, UpdatedAt) VALUES (@Id, @Username, @PasswordHash, @EmailAddress,
+                                                           @EmailAddressConfirmed, @CreatedAt, @UpdatedAt)",
             user);
         return result > 0;
     }
@@ -42,7 +44,9 @@ public class UserRepository : IUserRepository
         using var connection = await _connectionFactory.CreateConnectionAsync();
         var result = await connection.ExecuteAsync(
             @$"UPDATE {_tableName} SET Username = @Username, PasswordHash = @PasswordHash,
-                EmailAddress = @EmailAddress, WHERE Id = @Id",
+                EmailAddress = @EmailAddress, EmailAddressConfirmed = @EmailAddressConfirmed,
+                CreatedAt = @CreatedAt, UpdatedAt = @UpdatedAt
+                WHERE Id = @Id",
             user);
         return result > 0;
     }
@@ -53,5 +57,19 @@ public class UserRepository : IUserRepository
         var result = await connection.ExecuteAsync(@$"DELETE FROM {_tableName} WHERE Id = @Id",
             new {Id = id.ToString()});
         return result > 0;
+    }
+
+    public async Task<UserDto?> FindByUsernameAsync(string username)
+    {
+        using var connection = await _connectionFactory.CreateConnectionAsync();
+        return await connection.QuerySingleOrDefaultAsync<UserDto>(
+            @$"SELECT * FROM {_tableName} WHERE Username = @Username LIMIT 1", new { Username = username });
+    }
+
+    public async Task<UserDto?> FindByEmailAsync(string email)
+    {
+        using var connection = await _connectionFactory.CreateConnectionAsync();
+        return await connection.QuerySingleOrDefaultAsync<UserDto>(
+            @$"SELECT * FROM {_tableName} WHERE EmailAddress = @EmailAddress LIMIT 1", new { EmailAddress = email });
     }
 }

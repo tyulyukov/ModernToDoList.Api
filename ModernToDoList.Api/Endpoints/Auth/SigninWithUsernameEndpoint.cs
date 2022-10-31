@@ -8,24 +8,24 @@ using ModernToDoList.Api.Services;
 
 namespace ModernToDoList.Api.Endpoints.Auth;
 
-public class SignupEndpoint : Endpoint<SignupRequest, SignupResponse>
+public class SigninWithUsernameEndpoint : Endpoint<SigninWithUsernameRequest, SigninResponse>
 {
     private readonly IAuthService _authService;
 
-    public SignupEndpoint(IAuthService authService)
+    public SigninWithUsernameEndpoint(IAuthService authService)
     {
         _authService = authService;
     }
 
     public override void Configure()
     {
-        Post("/api/v1/auth/signup");
+        Post("/api/v1/auth/signin/username");
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(SignupRequest req, CancellationToken ct)
+    public override async Task HandleAsync(SigninWithUsernameRequest req, CancellationToken ct)
     {
-        var response = await _authService.SignupAsync(req);
+        var response = await _authService.SigninAsync(req);
         await SendAsync(response, 200, ct);
     }
 }

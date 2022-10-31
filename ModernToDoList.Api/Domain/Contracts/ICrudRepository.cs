@@ -1,12 +1,12 @@
 ﻿namespace ModernToDoList.Api.Repositories;
 
-public interface ICrudRepository<T>
+public interface ICrudRepository<T, TDto>
 {
     Task<bool> CreateAsync(T obj);
 
-    Task<T?> GetAsync(Guid id);
+    Task<TDto?> GetAsync(Guid id);
 
-    Task<IEnumerable<T>> GetAllAsync();
+    Task<IEnumerable<TDto>> GetAllAsync();
 
     Task<bool> UpdateAsync(T obj);
 

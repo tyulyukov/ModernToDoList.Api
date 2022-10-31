@@ -26,17 +26,17 @@ public class UserRepository : IUserRepository
         return result > 0;
     }
 
-    public async Task<User?> GetAsync(Guid id)
+    public async Task<UserDto?> GetAsync(Guid id)
     {
         using var connection = await _connectionFactory.CreateConnectionAsync();
-        return await connection.QuerySingleOrDefaultAsync<User>(
+        return await connection.QuerySingleOrDefaultAsync<UserDto>(
             @$"SELECT * FROM {_tableName} WHERE Id = @Id LIMIT 1", new { Id = id.ToString() });
     }
 
-    public async Task<IEnumerable<User>> GetAllAsync()
+    public async Task<IEnumerable<UserDto>> GetAllAsync()
     {
         using var connection = await _connectionFactory.CreateConnectionAsync();
-        return await connection.QueryAsync<User>(@$"SELECT * FROM {_tableName}");
+        return await connection.QueryAsync<UserDto>(@$"SELECT * FROM {_tableName}");
     }
 
     public async Task<bool> UpdateAsync(User user)

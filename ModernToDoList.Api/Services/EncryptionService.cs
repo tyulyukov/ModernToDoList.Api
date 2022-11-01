@@ -1,9 +1,7 @@
-﻿using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using FluentValidation;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using ModernToDoList.Api.Domain;
 using ModernToDoList.Api.Repositories;
@@ -48,20 +46,25 @@ public class EncryptionService : IEncryptionService
         
         var claims = new []
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim("Username", user.Username),
             new Claim(ClaimTypes.Email, user.EmailAddress)
         };
-
-        var token = new JwtSecurityToken(
-            signingCredentials: GetSigningCredentialsByKey(_configuration.GetValue<string>("JWT:Key")),
-            expires: DateTime.UtcNow.AddMilliseconds(_configuration.GetValue<int>("JWT:TTL")),
-            claims: claims,
-            issuer: _configuration.GetValue<string>("JWT:Issuer"),
-            audience: _configuration.GetValue<string>("JWT:Audience")
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = _configuration.GetValue<string>("JWT:Key");
+        var ttl = _configuration.GetValue<long>("JWT:TTL");
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            IssuedAt = DateTime.UtcNow,
+            Expires = DateTime.UtcNow.AddMilliseconds(ttl),
+            SigningCredentials = GetSigningCredentialsByKey(key),
+            Issuer = _configuration.GetValue<string>("JWT:Issuer"),
+            Audience = _configuration.GetValue<string>("JWT:Audience")
+        };
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
     }
 
     private SigningCredentials GetSigningCredentialsByKey(string key)

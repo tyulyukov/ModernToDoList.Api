@@ -15,6 +15,24 @@ using NSwag;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration.GetValue<string>("JWT:Issuer"),
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration.GetValue<string>("JWT:Audience"),
+            ValidateLifetime = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.ASCII.GetBytes(builder.Configuration.GetValue<string>("JWT:Key"))),
+            ValidateIssuerSigningKey = true,
+            ClockSkew = TimeSpan.Zero,
+        };
+    });
+
 builder.Services.AddSwaggerDoc(s =>
 {
     s.AddAuth(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme()
@@ -31,24 +49,6 @@ builder.Services.AddSingleton<IDbConnectionFactory>(_ =>
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IAuthService, AuthService>();
 builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.RequireHttpsMetadata = false;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = builder.Configuration.GetValue<string>("JWT:Issuer"),
-            ValidateAudience = true,
-            ValidAudience = builder.Configuration.GetValue<string>("JWT:Audience"),
-            ValidateLifetime = true,
-            
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.ASCII.GetBytes(builder.Configuration.GetValue<string>("JWT:Key"))),
-            ValidateIssuerSigningKey = true
-        };
-    });
 
 builder.Services
     .AddLogging(lb => lb.AddDebug().AddFluentMigratorConsole())

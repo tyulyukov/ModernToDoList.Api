@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using FastEndpoints;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ModernToDoList.Api.Domain.Contracts.Responses;
 using ModernToDoList.Api.Domain.Mappers;

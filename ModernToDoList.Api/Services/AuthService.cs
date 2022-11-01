@@ -83,4 +83,32 @@ public class AuthService : IAuthService
             Token = await _encryptionService.CreateTokenAsync(Guid.Parse(user.Id))
         };
     }
+    
+    public async Task<SigninResponse> SigninAsync(SigninWithEmailRequest request)
+    {
+        var user = await _userRepository.FindByEmailAsync(request.EmailAddress);
+
+        if (user is null)
+        {
+            const string message = "Email is incorrect";
+            throw new ValidationException(message, new[]
+            {
+                new ValidationFailure(nameof(User), message)
+            });
+        }
+
+        if (!_encryptionService.ValidatePassword(request.Password, user.PasswordHash))
+        {
+            const string message = "Password is incorrect";
+            throw new ValidationException(message, new[]
+            {
+                new ValidationFailure(nameof(User), message)
+            });
+        }
+        
+        return new SigninResponse()
+        {
+            Token = await _encryptionService.CreateTokenAsync(Guid.Parse(user.Id))
+        };
+    }
 }

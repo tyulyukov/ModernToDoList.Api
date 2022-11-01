@@ -2,7 +2,7 @@
 
 public class SignupRequest
 {
-    public String Username { get; init; }
-    public String Password { get; init; }
-    public String EmailAddress { get; init; }
+    public string Username { get; init; } = default!;
+    public string Password { get; init; } = default!;
+    public string EmailAddress { get; init; } = default!;
 }

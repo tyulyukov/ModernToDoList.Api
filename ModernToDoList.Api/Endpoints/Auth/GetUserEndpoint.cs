@@ -26,7 +26,7 @@ public class GetUserEndpoint : EndpointWithoutRequest<GetUserResponse>
     {
         var id = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
         
-        var user = await _userRepository.GetAsync(Guid.Parse(id));
+        var user = await _userRepository.GetAsync(id);
 
         if (user is null)
         {
@@ -34,6 +34,6 @@ public class GetUserEndpoint : EndpointWithoutRequest<GetUserResponse>
             return;
         }
         
-        await SendAsync(UserDtoToGetUserResponseMapper.ToGetUserResponse(user), 200, ct);
+        await SendAsync(UserToGetUserMapper.ToResponse(user), 200, ct);
     }
 }

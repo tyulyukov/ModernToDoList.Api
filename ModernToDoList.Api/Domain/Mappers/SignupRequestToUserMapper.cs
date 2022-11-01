@@ -8,7 +8,7 @@ public static class SignupRequestToUserMapper
      {
           return new User()
           {
-               Id = Guid.NewGuid(),
+               Id = Guid.NewGuid().ToString(),
                EmailAddress = request.EmailAddress,
                Username = request.Username,
                PasswordHash = request.Password,

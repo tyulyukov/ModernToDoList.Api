@@ -31,7 +31,7 @@ public class EncryptionService : IEncryptionService
         return BCrypt.Net.BCrypt.Verify(password, passwordHash);
     }
     
-    public async Task<string> CreateTokenAsync(Guid id)
+    public async Task<string> CreateTokenAsync(string id)
     {
         var user = await _userRepository.GetAsync(id);
 

@@ -2,7 +2,7 @@
 
 public interface IEncryptionService
 {
-    String HashPassword(String password);
-    bool ValidatePassword(String password, String passwordHash);
-    Task<string> CreateTokenAsync(Guid id);
+    string HashPassword(string password);
+    bool ValidatePassword(string password, string passwordHash);
+    Task<string> CreateTokenAsync(string id);
 }

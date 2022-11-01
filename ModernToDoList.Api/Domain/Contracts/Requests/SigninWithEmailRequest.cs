@@ -2,6 +2,6 @@
 
 public class SigninWithEmailRequest
 {
-    public String EmailAddress { get; init; }
-    public String Password { get; init; }
+    public string EmailAddress { get; init; } = default!;
+    public string Password { get; init; } = default!;
 }

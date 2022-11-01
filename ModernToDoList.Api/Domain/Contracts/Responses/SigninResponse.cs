@@ -2,5 +2,5 @@
 
 public class SigninResponse
 {
-    public String Token { get; init; }
+    public string Token { get; init; } = default!;
 }

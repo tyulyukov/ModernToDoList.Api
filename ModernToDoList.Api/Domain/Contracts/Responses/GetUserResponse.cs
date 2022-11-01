@@ -2,8 +2,8 @@
 
 public class GetUserResponse
 {
-    public Guid Id { get; init; }
-    public string Username { get; init; }
-    public string EmailAddress { get; init; }
+    public string Id { get; init; } = default!;
+    public string Username { get; init; } = default!;
+    public string EmailAddress { get; init; } = default!;
     public bool EmailAddressConfirmed { get; init; }
 }

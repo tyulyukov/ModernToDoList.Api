@@ -80,7 +80,7 @@ public class AuthService : IAuthService
         
         return new SigninResponse()
         {
-            Token = await _encryptionService.CreateTokenAsync(Guid.Parse(user.Id))
+            Token = await _encryptionService.CreateTokenAsync(user.Id)
         };
     }
     
@@ -108,7 +108,7 @@ public class AuthService : IAuthService
         
         return new SigninResponse()
         {
-            Token = await _encryptionService.CreateTokenAsync(Guid.Parse(user.Id))
+            Token = await _encryptionService.CreateTokenAsync(user.Id)
         };
     }
 }

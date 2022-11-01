@@ -2,6 +2,6 @@
 
 public class SigninWithUsernameRequest
 {
-    public String Username { get; init; }
-    public String Password { get; init; }
+    public string Username { get; init; } = default!;
+    public string Password { get; init; } = default!;
 }

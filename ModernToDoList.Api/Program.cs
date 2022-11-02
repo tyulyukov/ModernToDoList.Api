@@ -47,8 +47,11 @@ builder.Services.AddSwaggerDoc(s =>
 builder.Services.AddSingleton<IDbConnectionFactory>(_ =>
     new PostgresConnectionFactory(builder.Configuration.GetValue<string>("Database:ConnectionString")));
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
+builder.Services.AddSingleton<IAttachmentImageRepository, AttachmentImageRepository>();
+
 builder.Services.AddSingleton<IAuthService, AuthService>();
 builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
+builder.Services.AddSingleton<IStorageService, StorageService>();
 
 builder.Services
     .AddLogging(lb => lb.AddDebug().AddFluentMigratorConsole())
@@ -86,8 +89,7 @@ app.UseSwaggerUi3(s =>
 });
 
 using var serviceScope = app.Services.CreateScope();
-var services = serviceScope.ServiceProvider;
-var runner = services.GetRequiredService<IMigrationRunner>();
+var runner = serviceScope.ServiceProvider.GetRequiredService<IMigrationRunner>();
 runner.MigrateUp();
 
 app.Run();

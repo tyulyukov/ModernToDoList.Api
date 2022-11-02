@@ -11,12 +11,12 @@ namespace ModernToDoList.Api.Endpoints.Attachment;
 
 public class UploadImageEndpoint : Endpoint<UploadImageRequest, UploadImageResponse>
 {
-    private readonly IStorageService _storageService;
+    private readonly IStorageImageService _storageImageService;
     private readonly IUserRepository _userRepository;
 
-    public UploadImageEndpoint(IStorageService storageService, IUserRepository userRepository)
+    public UploadImageEndpoint(IStorageImageService storageImageService, IUserRepository userRepository)
     {
-        _storageService = storageService;
+        _storageImageService = storageImageService;
         _userRepository = userRepository;
     }
 
@@ -39,7 +39,7 @@ public class UploadImageEndpoint : Endpoint<UploadImageRequest, UploadImageRespo
             return;
         }
         
-        var attachment = await _storageService.UploadImageAsync(request.File, id);
+        var attachment = await _storageImageService.UploadImageAsync(request.File, id);
         await SendOkAsync(ImageAttachmentToUploadImageResponse.ToResponse(attachment), ct);
     }
 }

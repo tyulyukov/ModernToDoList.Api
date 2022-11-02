@@ -2,8 +2,7 @@
 
 namespace ModernToDoList.Api.Services;
 
-public interface IStorageService
+public interface IStorageImageService
 {
-    bool ValidateImage(IFormFile file);
     Task<ImageAttachment> UploadImageAsync(IFormFile file, string authorId);
 }

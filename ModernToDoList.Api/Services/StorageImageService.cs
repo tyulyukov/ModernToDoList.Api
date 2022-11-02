@@ -1,23 +1,19 @@
-﻿using Azure.Storage.Blobs;
-using Blurhash.ImageSharp;
+﻿using Blurhash.ImageSharp;
 using FluentValidation;
 using FluentValidation.Results;
 using ModernToDoList.Api.Domain;
+using ModernToDoList.Api.Domain.Providers;
 using ModernToDoList.Api.Repositories;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace ModernToDoList.Api.Services;
 
-public class StorageService : IStorageService
+public class StorageImageService : IStorageImageService
 {
     private readonly Dictionary<string, List<byte[]>> _fileSignature = new()
     {
-        { ".gif", new List<byte[]>
-            {
-                new byte[] { 0x47, 0x49, 0x46, 0x38 }
-            } 
-        },
         { ".png", new List<byte[]>
             {
                 new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }
@@ -38,53 +34,41 @@ public class StorageService : IStorageService
             }
         },
     };
-
+    private readonly WebpEncoder _imageWebpEncoder = new()
+    {
+        Quality = 80,
+    };
     private readonly IAttachmentImageRepository _attachmentImageRepository;
-    private readonly IConfiguration _configuration;
+    private readonly IStorageProvider _storageProvider;
 
-    public StorageService(IAttachmentImageRepository attachmentImageRepository, IConfiguration configuration)
+    public StorageImageService(IAttachmentImageRepository attachmentImageRepository, IStorageProvider storageProvider)
     {
         _attachmentImageRepository = attachmentImageRepository;
-        _configuration = configuration;
-    }
-
-    public bool ValidateImage(IFormFile file)
-    {
-        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-
-        if (!_fileSignature.ContainsKey(extension))
-            return false;
-        
-        var signatures = _fileSignature[extension];
-
-        using var stream = file.OpenReadStream();
-        using var reader = new BinaryReader(stream);
-        var headerBytes = reader.ReadBytes(signatures.Max(m => m.Length));
-
-        return signatures.Any(signature => 
-            headerBytes.Take(signature.Length).SequenceEqual(signature));
+        _storageProvider = storageProvider;
     }
 
     public async Task<ImageAttachment> UploadImageAsync(IFormFile file, string authorId)
     {
         if (!ValidateImage(file))
         {
-            const string message = "Uploaded file is not an image";
+            const string message = "Uploaded file has unsupported type";
             throw new ValidationException(message, new[]
             {
                 new ValidationFailure(nameof(IFormFile), message)
             });
         }
 
-        var fileName = Path.GetRandomFileName() + ".webp";
+        var fileName = DateTime.UtcNow.ToString("yyyyMMddHHmmssffffff") + Path.GetRandomFileName() + ".webp";
 
-        using var imageStream = new MemoryStream();
-        
+        using var webpImageStream = new MemoryStream();
+
         await using var stream = file.OpenReadStream();
-        var image = await Image.LoadAsync(stream);
-        await image.SaveAsWebpAsync(imageStream);
+        using var image = await Image.LoadAsync(stream);
+        /*image.Mutate(context => 
+            context.Resize(image.Width / 2, image.Height / 2));*/
+        await image.SaveAsWebpAsync(webpImageStream, _imageWebpEncoder);
         
-        var url = await PersistImageAsync(stream, fileName);
+        var url = await _storageProvider.PersistFileAsync(fileName, webpImageStream);
         
         var attachment = new ImageAttachment()
         {
@@ -103,25 +87,21 @@ public class StorageService : IStorageService
         return attachment;
     }
     
-    private async Task<string> PersistImageAsync(Stream imageStream, string fileName)
+    private bool ValidateImage(IFormFile file)
     {
-        string connectionString = _configuration.GetValue<string>("AzureStorage:ConnectionString");
-        string containerName = _configuration.GetValue<string>("AzureStorage:ContainerName");
-        var container = new BlobContainerClient(connectionString, containerName);
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 
-        try
-        {
-            var blob = container.GetBlobClient(fileName);
+        if (!_fileSignature.ContainsKey(extension))
+            return false;
+        
+        var signatures = _fileSignature[extension];
 
-            imageStream.Position = 0;
-            await blob.UploadAsync(imageStream);
+        using var stream = file.OpenReadStream();
+        using var reader = new BinaryReader(stream);
+        var headerBytes = reader.ReadBytes(signatures.Max(m => m.Length));
 
-            return blob.Uri.AbsoluteUri;
-        }
-        catch
-        {
-            throw new InvalidOperationException("Failed to upload image to storage");
-        }
+        return signatures.Any(signature => 
+            headerBytes.Take(signature.Length).SequenceEqual(signature));
     }
 
     private string GenerateBlurHash(Image image)

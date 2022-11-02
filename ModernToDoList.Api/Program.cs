@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using ModernToDoList.Api.Database.Factories;
 using ModernToDoList.Api.Database.Migrations;
 using ModernToDoList.Api.Domain.Contracts.Responses;
+using ModernToDoList.Api.Domain.Providers;
 using ModernToDoList.Api.Middlewares;
 using ModernToDoList.Api.Repositories;
 using ModernToDoList.Api.Services;
@@ -51,7 +52,9 @@ builder.Services.AddSingleton<IAttachmentImageRepository, AttachmentImageReposit
 
 builder.Services.AddSingleton<IAuthService, AuthService>();
 builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
-builder.Services.AddSingleton<IStorageService, StorageService>();
+builder.Services.AddSingleton<IStorageImageService, StorageImageService>();
+
+builder.Services.AddSingleton<IStorageProvider, AzureStorageProvider>();
 
 builder.Services
     .AddLogging(lb => lb.AddDebug().AddFluentMigratorConsole())

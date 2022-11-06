@@ -45,8 +45,11 @@ builder.Services.AddSwaggerDoc(s =>
     });
 });
 
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
+                       ?? builder.Configuration.GetValue<string>("Database:ConnectionString");
+
 builder.Services.AddSingleton<IDbConnectionFactory>(_ =>
-    new PostgresConnectionFactory(builder.Configuration.GetValue<string>("Database:ConnectionString")));
+    new PostgresConnectionFactory(connectionString));
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IAttachmentImageRepository, AttachmentImageRepository>();
 
@@ -62,7 +65,7 @@ builder.Services
     .ConfigureRunner(
         runner => runner
             .AddPostgres()
-            .WithGlobalConnectionString(builder.Configuration.GetValue<string>("Database:ConnectionString"))
+            .WithGlobalConnectionString(connectionString)
             .ScanIn(typeof(CreateUsersTableMigration).Assembly).For.All())
     .Configure<SelectingProcessorAccessorOptions>(
         opt => opt.ProcessorId = "PostgreSQL");

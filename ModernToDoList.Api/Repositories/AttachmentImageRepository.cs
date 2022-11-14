@@ -1,22 +1,22 @@
 ﻿using Dapper;
-using ModernToDoList.Api.Database.Factories;
 using ModernToDoList.Api.Domain;
+using ModernToDoList.Api.Domain.Connection;
 
 namespace ModernToDoList.Api.Repositories;
 
 public class AttachmentImageRepository : IAttachmentImageRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
+    private readonly IConnectionPool _connectionPool;
 
-    public AttachmentImageRepository(IDbConnectionFactory connectionFactory)
+    public AttachmentImageRepository(IConnectionPool connectionPool)
     {
-        _connectionFactory = connectionFactory;
+        _connectionPool = connectionPool;
     }
 
     public async Task<bool> CreateAsync(ImageAttachment imageAttachment)
     {
-        using var connection = await _connectionFactory.CreateConnectionAsync();
-        var result = await connection.ExecuteAsync(
+        using var provider = _connectionPool.UseConnection();
+        var result = await provider.Connection.ExecuteAsync(
             @"INSERT INTO ImageAttachments (Id, AuthorId, FileName, Url, BlurHash)
                 VALUES (@Id, @AuthorId, @FileName, @Url, @BlurHash)",
             imageAttachment);
@@ -25,22 +25,22 @@ public class AttachmentImageRepository : IAttachmentImageRepository
 
     public async Task<ImageAttachment?> GetAsync(string id)
     {
-        using var connection = await _connectionFactory.CreateConnectionAsync();
-        return await connection.QuerySingleOrDefaultAsync<ImageAttachment>(
+        using var provider = _connectionPool.UseConnection();
+        return await provider.Connection.QuerySingleOrDefaultAsync<ImageAttachment>(
             @"SELECT * FROM ImageAttachments WHERE Id = @Id LIMIT 1", 
-            new { Id = id.ToString() });
+            new { Id = id });
     }
 
     public async Task<IEnumerable<ImageAttachment>> GetAllAsync()
     {
-        using var connection = await _connectionFactory.CreateConnectionAsync();
-        return await connection.QueryAsync<ImageAttachment>(@"SELECT * FROM ImageAttachments");
+        using var provider = _connectionPool.UseConnection();
+        return await provider.Connection.QueryAsync<ImageAttachment>(@"SELECT * FROM ImageAttachments");
     }
 
     public async Task<bool> UpdateAsync(ImageAttachment imageAttachment)
     {
-        using var connection = await _connectionFactory.CreateConnectionAsync();
-        var result = await connection.ExecuteAsync(
+        using var provider = _connectionPool.UseConnection();
+        var result = await provider.Connection.ExecuteAsync(
             @"UPDATE ImageAttachments SET Id = @Id, AuthorId = @AuthorId, FileName = @FileName,
                 Url = @Url, BlurHash = @BlurHash
                 WHERE Id = @Id",
@@ -50,9 +50,9 @@ public class AttachmentImageRepository : IAttachmentImageRepository
 
     public async Task<bool> DeleteAsync(string id)
     {
-        using var connection = await _connectionFactory.CreateConnectionAsync();
-        var result = await connection.ExecuteAsync(@"DELETE FROM ImageAttachments WHERE Id = @Id",
-            new {Id = id.ToString()});
+        using var provider = _connectionPool.UseConnection();
+        var result = await provider.Connection.ExecuteAsync(@"DELETE FROM ImageAttachments WHERE Id = @Id",
+            new { Id = id });
         return result > 0;
     }
 }

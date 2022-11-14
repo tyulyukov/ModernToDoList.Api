@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text;
 using FastEndpoints;
 using FastEndpoints.Swagger;
@@ -7,11 +8,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using ModernToDoList.Api.Database.Factories;
 using ModernToDoList.Api.Database.Migrations;
+using ModernToDoList.Api.Domain.Connection;
 using ModernToDoList.Api.Domain.Contracts.Responses;
 using ModernToDoList.Api.Domain.Providers;
 using ModernToDoList.Api.Middlewares;
 using ModernToDoList.Api.Repositories;
 using ModernToDoList.Api.Services;
+using Npgsql;
 using NSwag;
 
 var builder = WebApplication.CreateBuilder();
@@ -45,19 +48,29 @@ builder.Services.AddSwaggerDoc(s =>
     });
 });
 
-var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
-                       ?? builder.Configuration.GetValue<string>("Database:ConnectionString");
+var connectionString = builder.Configuration.GetValue<string>("Database:ConnectionString");
 
-builder.Services.AddSingleton<IDbConnectionFactory>(_ =>
-    new PostgresConnectionFactory(connectionString));
+if (builder.Environment.IsProduction())
+    connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
+                       ?? throw new Exception("Environment Variable DB_CONNECTION_STRING is null");
+
+var connectionFactory = new PostgresConnectionFactory(connectionString);
+var count = builder.Configuration.GetValue<int>("Database:ConnectionsLimit");
+
+var connections = new IDbConnection[count];
+for (int i = 0; i < count; i++)
+    connections[i] = await connectionFactory.CreateConnectionAsync();
+
+builder.Services.AddSingleton<IConnectionPool, ConnectionPool>(_ => new ConnectionPool(connections));
+
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IAttachmentImageRepository, AttachmentImageRepository>();
 
-builder.Services.AddSingleton<IAuthService, AuthService>();
-builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
-builder.Services.AddSingleton<IStorageImageService, StorageImageService>();
+builder.Services.AddTransient<IAuthService, AuthService>();
+builder.Services.AddTransient<IEncryptionService, EncryptionService>();
+builder.Services.AddTransient<IStorageImageService, StorageImageService>();
 
-builder.Services.AddSingleton<IStorageProvider, AzureStorageProvider>();
+builder.Services.AddTransient<IStorageProvider, AzureStorageProvider>();
 
 builder.Services
     .AddLogging(lb => lb.AddDebug().AddFluentMigratorConsole())

@@ -25,7 +25,7 @@ public class SigninWithEmailEndpoint : Endpoint<SigninWithEmailRequest, SigninRe
 
     public override async Task HandleAsync(SigninWithEmailRequest req, CancellationToken ct)
     {
-        var response = await _authService.SigninAsync(req);
+        var response = await _authService.SigninAsync(req, ct);
         await SendAsync(response, 200, ct);
     }
 }

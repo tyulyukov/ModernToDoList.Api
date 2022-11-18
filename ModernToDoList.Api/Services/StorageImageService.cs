@@ -47,7 +47,7 @@ public class StorageImageService : IStorageImageService
         _storageProvider = storageProvider;
     }
 
-    public async Task<ImageAttachment> UploadImageAsync(IFormFile file, string authorId)
+    public async Task<ImageAttachment> UploadImageAsync(IFormFile file, string authorId, CancellationToken ct)
     {
         if (!ValidateImage(file))
         {
@@ -63,12 +63,12 @@ public class StorageImageService : IStorageImageService
         using var webpImageStream = new MemoryStream();
 
         await using var stream = file.OpenReadStream();
-        using var image = await Image.LoadAsync(stream);
+        using var image = await Image.LoadAsync(stream, ct);
         /*image.Mutate(context => 
             context.Resize(image.Width / 2, image.Height / 2));*/
         await image.SaveAsWebpAsync(webpImageStream, _imageWebpEncoder);
         
-        var url = await _storageProvider.PersistFileAsync(fileName, webpImageStream);
+        var url = await _storageProvider.PersistFileAsync(fileName, webpImageStream, ct);
         
         var attachment = new ImageAttachment()
         {
@@ -79,7 +79,7 @@ public class StorageImageService : IStorageImageService
             BlurHash = GenerateBlurHash(image)
         };
 
-        var created = await _attachmentImageRepository.CreateAsync(attachment);
+        var created = await _attachmentImageRepository.CreateAsync(attachment, ct);
 
         if (!created)
             throw new InvalidOperationException("Failed to create image attachment");

@@ -25,7 +25,7 @@ public class SignupEndpoint : Endpoint<SignupRequest, SignupResponse>
 
     public override async Task HandleAsync(SignupRequest req, CancellationToken ct)
     {
-        var response = await _authService.SignupAsync(req);
+        var response = await _authService.SignupAsync(req, ct);
         await SendAsync(response, 200, ct);
     }
 }

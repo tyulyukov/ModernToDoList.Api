@@ -1,14 +1,14 @@
-﻿namespace ModernToDoList.Api.Repositories;
+﻿namespace ModernToDoList.Api.Domain.Contracts;
 
 public interface ICrudRepository<T>
 {
-    Task<bool> CreateAsync(T obj);
+    Task<bool> CreateAsync(T obj, CancellationToken ct);
 
-    Task<T?> GetAsync(string id);
+    Task<T?> GetAsync(string id, CancellationToken ct);
 
-    Task<IEnumerable<T>> GetAllAsync();
+    Task<IEnumerable<T>> GetAllAsync(CancellationToken ct);
 
-    Task<bool> UpdateAsync(T obj);
+    Task<bool> UpdateAsync(T obj, CancellationToken ct);
 
-    Task<bool> DeleteAsync(string id);
+    Task<bool> DeleteAsync(string id, CancellationToken ct);
 }

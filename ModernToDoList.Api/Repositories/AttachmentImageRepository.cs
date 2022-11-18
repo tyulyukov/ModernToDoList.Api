@@ -13,46 +13,54 @@ public class AttachmentImageRepository : IAttachmentImageRepository
         _connectionPool = connectionPool;
     }
 
-    public async Task<bool> CreateAsync(ImageAttachment imageAttachment)
+    public async Task<bool> CreateAsync(ImageAttachment imageAttachment, CancellationToken ct)
     {
         using var provider = _connectionPool.UseConnection();
         var result = await provider.Connection.ExecuteAsync(
-            @"INSERT INTO ImageAttachments (Id, AuthorId, FileName, Url, BlurHash)
+            new CommandDefinition(
+                @"INSERT INTO ImageAttachments (Id, AuthorId, FileName, Url, BlurHash)
                 VALUES (@Id, @AuthorId, @FileName, @Url, @BlurHash)",
-            imageAttachment);
+                imageAttachment, cancellationToken: ct));
         return result > 0;
     }
 
-    public async Task<ImageAttachment?> GetAsync(string id)
+    public async Task<ImageAttachment?> GetAsync(string id, CancellationToken ct)
     {
         using var provider = _connectionPool.UseConnection();
         return await provider.Connection.QuerySingleOrDefaultAsync<ImageAttachment>(
-            @"SELECT * FROM ImageAttachments WHERE Id = @Id LIMIT 1", 
-            new { Id = id });
+            new CommandDefinition(
+                @"SELECT * FROM ImageAttachments WHERE Id = @Id LIMIT 1", 
+                new { Id = id }, cancellationToken: ct));
     }
 
-    public async Task<IEnumerable<ImageAttachment>> GetAllAsync()
+    public async Task<IEnumerable<ImageAttachment>> GetAllAsync(CancellationToken ct)
     {
         using var provider = _connectionPool.UseConnection();
-        return await provider.Connection.QueryAsync<ImageAttachment>(@"SELECT * FROM ImageAttachments");
+        return await provider.Connection.QueryAsync<ImageAttachment>(
+            new CommandDefinition(
+                @"SELECT * FROM ImageAttachments",
+                cancellationToken: ct));
     }
 
-    public async Task<bool> UpdateAsync(ImageAttachment imageAttachment)
+    public async Task<bool> UpdateAsync(ImageAttachment imageAttachment, CancellationToken ct)
     {
         using var provider = _connectionPool.UseConnection();
         var result = await provider.Connection.ExecuteAsync(
-            @"UPDATE ImageAttachments SET Id = @Id, AuthorId = @AuthorId, FileName = @FileName,
+            new CommandDefinition(
+                @"UPDATE ImageAttachments SET Id = @Id, AuthorId = @AuthorId, FileName = @FileName,
                 Url = @Url, BlurHash = @BlurHash
                 WHERE Id = @Id",
-            imageAttachment);
+                imageAttachment, cancellationToken: ct));
         return result > 0;
     }
 
-    public async Task<bool> DeleteAsync(string id)
+    public async Task<bool> DeleteAsync(string id, CancellationToken ct)
     {
         using var provider = _connectionPool.UseConnection();
-        var result = await provider.Connection.ExecuteAsync(@"DELETE FROM ImageAttachments WHERE Id = @Id",
-            new { Id = id });
+        var result = await provider.Connection.ExecuteAsync(
+            new CommandDefinition(
+                @"DELETE FROM ImageAttachments WHERE Id = @Id",
+                new { Id = id }, cancellationToken: ct));
         return result > 0;
     }
 }

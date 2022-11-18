@@ -26,7 +26,7 @@ public class GetUserEndpoint : EndpointWithoutRequest<GetUserResponse>
     {
         var id = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
         
-        var user = await _userRepository.GetAsync(id);
+        var user = await _userRepository.GetAsync(id, ct);
 
         if (user is null)
         {

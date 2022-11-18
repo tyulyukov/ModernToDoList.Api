@@ -11,7 +11,7 @@ public class AzureStorageProvider : IStorageProvider
         _configuration = configuration;
     }
 
-    public async Task<string> PersistFileAsync(string fileName, Stream fileStream)
+    public async Task<string> PersistFileAsync(string fileName, Stream fileStream, CancellationToken ct)
     {
         var connectionString = _configuration.GetValue<string>("AzureStorage:ConnectionString");
         var containerName = _configuration.GetValue<string>("AzureStorage:ContainerName");
@@ -22,7 +22,7 @@ public class AzureStorageProvider : IStorageProvider
             var blob = container.GetBlobClient(fileName);
 
             fileStream.Position = 0;
-            await blob.UploadAsync(fileStream);
+            await blob.UploadAsync(fileStream, ct);
 
             return blob.Uri.AbsoluteUri;
         }

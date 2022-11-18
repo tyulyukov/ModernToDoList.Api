@@ -14,7 +14,6 @@ using ModernToDoList.Api.Domain.Providers;
 using ModernToDoList.Api.Middlewares;
 using ModernToDoList.Api.Repositories;
 using ModernToDoList.Api.Services;
-using Npgsql;
 using NSwag;
 
 var builder = WebApplication.CreateBuilder();

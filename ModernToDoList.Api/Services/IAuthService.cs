@@ -5,7 +5,7 @@ namespace ModernToDoList.Api.Services;
 
 public interface IAuthService
 {
-    Task<SignupResponse> SignupAsync(SignupRequest request);
-    Task<SigninResponse> SigninAsync(SigninWithUsernameRequest request);
-    Task<SigninResponse> SigninAsync(SigninWithEmailRequest request);
+    Task<SignupResponse> SignupAsync(SignupRequest request, CancellationToken ct);
+    Task<SigninResponse> SigninAsync(SigninWithUsernameRequest request, CancellationToken ct);
+    Task<SigninResponse> SigninAsync(SigninWithEmailRequest request, CancellationToken ct);
 }

@@ -2,5 +2,5 @@
 
 public interface IStorageProvider
 {
-    Task<string> PersistFileAsync(string fileName, Stream fileStream);
+    Task<string> PersistFileAsync(string fileName, Stream fileStream, CancellationToken ct);
 }

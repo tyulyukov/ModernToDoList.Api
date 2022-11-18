@@ -19,14 +19,14 @@ public class AuthService : IAuthService
         _encryptionService = encryptionService;
     }
 
-    public async Task<SignupResponse> SignupAsync(SignupRequest request)
+    public async Task<SignupResponse> SignupAsync(SignupRequest request, CancellationToken ct)
     {
         var user = SignupRequestToUserMapper.ToUser(request);
 
         // TODO Email Address Validation
         
-        var existsByUsername = await _userRepository.FindByUsernameAsync(user.Username);
-        var existsByEmail = await _userRepository.FindByEmailAsync(user.EmailAddress);
+        var existsByUsername = await _userRepository.FindByUsernameAsync(user.Username, ct);
+        var existsByEmail = await _userRepository.FindByEmailAsync(user.EmailAddress, ct);
 
         if (existsByUsername is not null)
         {
@@ -48,17 +48,17 @@ public class AuthService : IAuthService
 
         user.PasswordHash = _encryptionService.HashPassword(user.PasswordHash);
         
-        await _userRepository.CreateAsync(user);
+        await _userRepository.CreateAsync(user, ct);
 
         return new SignupResponse()
         {
-            Token = await _encryptionService.CreateTokenAsync(user.Id)
+            Token = await _encryptionService.CreateTokenAsync(user.Id, ct)
         };
     }
 
-    public async Task<SigninResponse> SigninAsync(SigninWithUsernameRequest request)
+    public async Task<SigninResponse> SigninAsync(SigninWithUsernameRequest request, CancellationToken ct)
     {
-        var user = await _userRepository.FindByUsernameAsync(request.Username);
+        var user = await _userRepository.FindByUsernameAsync(request.Username, ct);
 
         if (user is null)
         {
@@ -80,13 +80,13 @@ public class AuthService : IAuthService
         
         return new SigninResponse()
         {
-            Token = await _encryptionService.CreateTokenAsync(user.Id)
+            Token = await _encryptionService.CreateTokenAsync(user.Id, ct)
         };
     }
     
-    public async Task<SigninResponse> SigninAsync(SigninWithEmailRequest request)
+    public async Task<SigninResponse> SigninAsync(SigninWithEmailRequest request, CancellationToken ct)
     {
-        var user = await _userRepository.FindByEmailAsync(request.EmailAddress);
+        var user = await _userRepository.FindByEmailAsync(request.EmailAddress, ct);
 
         if (user is null)
         {
@@ -108,7 +108,7 @@ public class AuthService : IAuthService
         
         return new SigninResponse()
         {
-            Token = await _encryptionService.CreateTokenAsync(user.Id)
+            Token = await _encryptionService.CreateTokenAsync(user.Id, ct)
         };
     }
 }

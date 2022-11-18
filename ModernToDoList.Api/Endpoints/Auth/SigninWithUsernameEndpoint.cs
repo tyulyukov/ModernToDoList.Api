@@ -25,7 +25,7 @@ public class SigninWithUsernameEndpoint : Endpoint<SigninWithUsernameRequest, Si
 
     public override async Task HandleAsync(SigninWithUsernameRequest req, CancellationToken ct)
     {
-        var response = await _authService.SigninAsync(req);
+        var response = await _authService.SigninAsync(req, ct);
         await SendAsync(response, 200, ct);
     }
 }

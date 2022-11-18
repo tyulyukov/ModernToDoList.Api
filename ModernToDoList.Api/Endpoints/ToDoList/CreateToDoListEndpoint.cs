@@ -7,14 +7,14 @@ using ModernToDoList.Api.Domain.Mappers;
 using ModernToDoList.Api.Repositories;
 using ModernToDoList.Api.Services;
 
-namespace ModernToDoList.Api.Endpoints.Attachment;
+namespace ModernToDoList.Api.Endpoints.ToDoList;
 
-public class UploadImageEndpoint : Endpoint<UploadImageRequest, UploadImageResponse>
+public class CreateToDoListEndpoint : Endpoint<UploadImageRequest, UploadImageResponse>
 {
     private readonly IStorageImageService _storageImageService;
     private readonly IUserRepository _userRepository;
 
-    public UploadImageEndpoint(IStorageImageService storageImageService, IUserRepository userRepository)
+    public CreateToDoListEndpoint(IStorageImageService storageImageService, IUserRepository userRepository)
     {
         _storageImageService = storageImageService;
         _userRepository = userRepository;
@@ -22,9 +22,8 @@ public class UploadImageEndpoint : Endpoint<UploadImageRequest, UploadImageRespo
 
     public override void Configure()
     {
-        Post("/api/v1/attachments/upload");
+        Post("/api/v1/todolist/create");
         AuthSchemes(JwtBearerDefaults.AuthenticationScheme);
-        AllowFileUploads();
     }
 
     public override async Task HandleAsync(UploadImageRequest request, CancellationToken ct)

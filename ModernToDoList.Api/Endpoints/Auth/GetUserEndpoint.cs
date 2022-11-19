@@ -18,7 +18,7 @@ public class GetUserEndpoint : EndpointWithoutRequest<GetUserResponse>
 
     public override void Configure()
     {
-        Get("/api/v1/auth/me");
+        Get("/auth/me");
         AuthSchemes(JwtBearerDefaults.AuthenticationScheme);
         Version(1);
     }

@@ -21,7 +21,7 @@ public class CreateToDoListEndpoint : Endpoint<CreateToDoListRequest, CreateToDo
 
     public override void Configure()
     {
-        Post("/api/v1/todolist/create");
+        Post("/todolist/create");
         AuthSchemes(JwtBearerDefaults.AuthenticationScheme);
         Version(1);
     }

@@ -19,7 +19,7 @@ public class SigninWithUsernameEndpoint : Endpoint<SigninWithUsernameRequest, Si
 
     public override void Configure()
     {
-        Post("/api/v1/auth/signin/username");
+        Post("/auth/signin/username");
         AllowAnonymous();
         Version(1);
     }

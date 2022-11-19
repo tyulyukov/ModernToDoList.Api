@@ -21,19 +21,22 @@ public class PostgresCommandDefinitionBuilder<TObj> : ICommandDefinitionBuilder<
         
         var sbFields = new StringBuilder();
         var sbParameters = new StringBuilder();
-        
-        foreach (var field in fields)
+
+        for (var i = 0; i < fields.Length; i++)
         {
-            sbFields.Append(field);
-            sbFields.Append(", ");
+            sbFields.Append(fields[i]);
             
+            if (i != fields.Length - 1)
+                sbFields.Append(", ");
+
             sbParameters.Append('@');
-            sbParameters.Append(field);
-            sbParameters.Append(", ");
+            sbParameters.Append(fields[i]);
+            
+            if (i != fields.Length - 1)
+                sbParameters.Append(", ");
         }
 
-        var commandText = $@"INSERT INTO {_tableName} ({sbFields.ToString()})
-                             VALUES ({sbParameters.ToString()})";
+        var commandText = $"INSERT INTO {_tableName} ({sbFields.ToString()}) VALUES ({sbParameters.ToString()})";
         
         _commandDefinition = new CommandDefinition(
             commandText, 
@@ -68,14 +71,16 @@ public class PostgresCommandDefinitionBuilder<TObj> : ICommandDefinitionBuilder<
         var fields = GetTypeFields();
 
         var sbSetters = new StringBuilder("SET ");
-        foreach (var field in fields)
+        for (var i = 0; i < fields.Length; i++)
         {
-            sbSetters.Append(field);
+            sbSetters.Append(fields[i]);
             sbSetters.Append("= @");
-            sbSetters.Append(field);
-            sbSetters.Append(", ");
+            sbSetters.Append(fields[i]);
+            
+            if (i != fields.Length - 1)
+                sbSetters.Append(", ");
         }
-        
+
         var commandText = $@"UPDATE {_tableName} {sbSetters.ToString()} WHERE Id = @Id";
         
         _commandDefinition = new CommandDefinition(
@@ -116,7 +121,7 @@ public class PostgresCommandDefinitionBuilder<TObj> : ICommandDefinitionBuilder<
     // TODO cache + move to service or smth
     private ReadOnlySpan<string> GetTypeFields()
     {
-        var properties = typeof(TObj).GetProperties(BindingFlags.Public);
+        var properties = typeof(TObj).GetProperties();
         var names = new string[properties.Length];
 
         for (var i = 0; i < properties.Length; i++)

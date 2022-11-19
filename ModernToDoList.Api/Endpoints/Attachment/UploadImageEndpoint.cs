@@ -22,7 +22,7 @@ public class UploadImageEndpoint : Endpoint<UploadImageRequest, UploadImageRespo
 
     public override void Configure()
     {
-        Post("/api/v1/attachments/upload");
+        Post("/attachments/upload");
         AuthSchemes(JwtBearerDefaults.AuthenticationScheme);
         AllowFileUploads();
         Version(1);

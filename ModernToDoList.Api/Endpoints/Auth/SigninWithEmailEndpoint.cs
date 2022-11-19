@@ -19,7 +19,7 @@ public class SigninWithEmailEndpoint : Endpoint<SigninWithEmailRequest, SigninRe
 
     public override void Configure()
     {
-        Post("/api/v1/auth/signin/email");
+        Post("/auth/signin/email");
         AllowAnonymous();
         Version(1);
     }

@@ -19,7 +19,7 @@ public class SignupEndpoint : Endpoint<SignupRequest, SignupResponse>
 
     public override void Configure()
     {
-        Post("/api/v1/auth/signup");
+        Post("/auth/signup");
         AllowAnonymous();
         Version(1);
     }

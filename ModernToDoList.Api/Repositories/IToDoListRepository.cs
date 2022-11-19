@@ -4,7 +4,7 @@ using ModernToDoList.Api.Domain.Entities;
 
 namespace ModernToDoList.Api.Repositories;
 
-public interface IAttachmentImageRepository : ICrudRepository<ImageAttachment>
+public interface IToDoListRepository : ICrudRepository<ToDoList>
 {
     
 }

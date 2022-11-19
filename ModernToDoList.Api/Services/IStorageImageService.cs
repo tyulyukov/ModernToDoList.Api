@@ -1,4 +1,5 @@
 ﻿using ModernToDoList.Api.Domain;
+using ModernToDoList.Api.Domain.Entities;
 
 namespace ModernToDoList.Api.Services;
 

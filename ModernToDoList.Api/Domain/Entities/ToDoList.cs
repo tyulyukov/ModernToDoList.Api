@@ -1,8 +1,7 @@
-﻿namespace ModernToDoList.Api.Domain;
+﻿namespace ModernToDoList.Api.Domain.Entities;
 
-public class ToDoList
+public class ToDoList : EntityBase
 {
-    public string Id { get; set; } = default!;
     public string AuthorId { get; set; } = default!;
     public string Title { get; set; } = default!;
     public string Description { get; set; } = default!;

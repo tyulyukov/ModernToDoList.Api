@@ -20,6 +20,7 @@ public class GetUserEndpoint : EndpointWithoutRequest<GetUserResponse>
     {
         Get("/api/v1/auth/me");
         AuthSchemes(JwtBearerDefaults.AuthenticationScheme);
+        Version(1);
     }
 
     public override async Task HandleAsync(CancellationToken ct)

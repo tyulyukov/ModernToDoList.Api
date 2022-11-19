@@ -1,4 +1,4 @@
-﻿namespace ModernToDoList.Api.Domain.Contracts;
+﻿namespace ModernToDoList.Api.Repositories;
 
 public interface ICrudRepository<T>
 {

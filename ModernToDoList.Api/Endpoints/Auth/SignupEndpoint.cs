@@ -21,6 +21,7 @@ public class SignupEndpoint : Endpoint<SignupRequest, SignupResponse>
     {
         Post("/api/v1/auth/signup");
         AllowAnonymous();
+        Version(1);
     }
 
     public override async Task HandleAsync(SignupRequest req, CancellationToken ct)

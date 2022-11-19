@@ -25,6 +25,7 @@ public class UploadImageEndpoint : Endpoint<UploadImageRequest, UploadImageRespo
         Post("/api/v1/attachments/upload");
         AuthSchemes(JwtBearerDefaults.AuthenticationScheme);
         AllowFileUploads();
+        Version(1);
     }
 
     public override async Task HandleAsync(UploadImageRequest request, CancellationToken ct)

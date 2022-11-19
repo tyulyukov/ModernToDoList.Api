@@ -21,6 +21,7 @@ public class SigninWithUsernameEndpoint : Endpoint<SigninWithUsernameRequest, Si
     {
         Post("/api/v1/auth/signin/username");
         AllowAnonymous();
+        Version(1);
     }
 
     public override async Task HandleAsync(SigninWithUsernameRequest req, CancellationToken ct)

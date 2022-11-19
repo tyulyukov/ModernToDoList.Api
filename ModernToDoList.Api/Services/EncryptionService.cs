@@ -4,6 +4,7 @@ using System.Text;
 using FluentValidation;
 using Microsoft.IdentityModel.Tokens;
 using ModernToDoList.Api.Domain;
+using ModernToDoList.Api.Domain.Entities;
 using ModernToDoList.Api.Repositories;
 using ValidationFailure = FluentValidation.Results.ValidationFailure;
 

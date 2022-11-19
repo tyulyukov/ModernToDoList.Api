@@ -3,6 +3,7 @@ using FluentValidation.Results;
 using ModernToDoList.Api.Domain;
 using ModernToDoList.Api.Domain.Contracts.Requests;
 using ModernToDoList.Api.Domain.Contracts.Responses;
+using ModernToDoList.Api.Domain.Entities;
 using ModernToDoList.Api.Domain.Mappers;
 using ModernToDoList.Api.Repositories;
 

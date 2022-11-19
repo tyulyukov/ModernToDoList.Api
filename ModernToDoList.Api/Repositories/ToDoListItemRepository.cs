@@ -5,44 +5,44 @@ using ModernToDoList.Api.Domain.Entities;
 
 namespace ModernToDoList.Api.Repositories;
 
-public class AttachmentImageRepository : IAttachmentImageRepository
+public class ToDoListItemRepository : IToDoListItemRepository
 {
     private readonly IConnectionPool _connectionPool;
-    private readonly ICommandDefinitionBuilder<ImageAttachment> _commandDefinitionBuilder;
+    private readonly ICommandDefinitionBuilder<ToDoListItem> _commandDefinitionBuilder;
 
-    public AttachmentImageRepository(IConnectionPool connectionPool, ICommandDefinitionBuilder<ImageAttachment> commandDefinitionBuilder)
+    public ToDoListItemRepository(IConnectionPool connectionPool, ICommandDefinitionBuilder<ToDoListItem> commandDefinitionBuilder)
     {
         _connectionPool = connectionPool;
         _commandDefinitionBuilder = commandDefinitionBuilder;
     }
 
-    public async Task<bool> CreateAsync(ImageAttachment imageAttachment, CancellationToken ct)
+    public async Task<bool> CreateAsync(ToDoListItem toDoListItem, CancellationToken ct)
     {
         using var provider = _connectionPool.UseConnection();
         var result = await provider.Connection.ExecuteAsync(
-            _commandDefinitionBuilder.CreateQuery(imageAttachment, ct).Build());
+            _commandDefinitionBuilder.CreateQuery(toDoListItem, ct).Build());
         return result > 0;
     }
 
-    public async Task<ImageAttachment?> GetAsync(string id, CancellationToken ct)
+    public async Task<ToDoListItem?> GetAsync(string id, CancellationToken ct)
     {
         using var provider = _connectionPool.UseConnection();
-        return await provider.Connection.QuerySingleOrDefaultAsync<ImageAttachment>(
+        return await provider.Connection.QuerySingleOrDefaultAsync<ToDoListItem>(
             _commandDefinitionBuilder.GetQuery(id, ct).Build());
     }
 
-    public async Task<IEnumerable<ImageAttachment>> GetAllAsync(CancellationToken ct)
+    public async Task<IEnumerable<ToDoListItem>> GetAllAsync(CancellationToken ct)
     {
         using var provider = _connectionPool.UseConnection();
-        return await provider.Connection.QueryAsync<ImageAttachment>(
+        return await provider.Connection.QueryAsync<ToDoListItem>(
             _commandDefinitionBuilder.GetAllQuery(ct).Build());
     }
 
-    public async Task<bool> UpdateAsync(ImageAttachment imageAttachment, CancellationToken ct)
+    public async Task<bool> UpdateAsync(ToDoListItem toDoListItem, CancellationToken ct)
     {
         using var provider = _connectionPool.UseConnection();
         var result = await provider.Connection.ExecuteAsync(
-            _commandDefinitionBuilder.UpdateQuery(imageAttachment, ct).Build());
+            _commandDefinitionBuilder.UpdateQuery(toDoListItem, ct).Build());
         return result > 0;
     }
 

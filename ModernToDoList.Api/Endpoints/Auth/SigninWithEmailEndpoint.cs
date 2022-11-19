@@ -21,6 +21,7 @@ public class SigninWithEmailEndpoint : Endpoint<SigninWithEmailRequest, SigninRe
     {
         Post("/api/v1/auth/signin/email");
         AllowAnonymous();
+        Version(1);
     }
 
     public override async Task HandleAsync(SigninWithEmailRequest req, CancellationToken ct)

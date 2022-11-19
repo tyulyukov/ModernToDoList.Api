@@ -1,4 +1,5 @@
 ﻿using ModernToDoList.Api.Domain.Contracts.Responses;
+using ModernToDoList.Api.Domain.Entities;
 
 namespace ModernToDoList.Api.Domain.Mappers;
 

@@ -8,8 +8,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using ModernToDoList.Api.Database.Factories;
 using ModernToDoList.Api.Database.Migrations;
+using ModernToDoList.Api.Domain.Command;
 using ModernToDoList.Api.Domain.Connection;
 using ModernToDoList.Api.Domain.Contracts.Responses;
+using ModernToDoList.Api.Domain.Entities;
+using ModernToDoList.Api.Domain.Logging;
 using ModernToDoList.Api.Domain.Providers;
 using ModernToDoList.Api.Middlewares;
 using ModernToDoList.Api.Repositories;
@@ -18,7 +21,8 @@ using NSwag;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.RequireHttpsMetadata = false;
@@ -36,9 +40,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddSwaggerDoc(s =>
+builder.Services.AddSwaggerDoc(maxEndpointVersion: 1, settings: s =>
 {
-    s.AddAuth(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme()
+    s.DocumentName = "Release 1.0";
+    s.Title = "my api";
+    s.Version = "v1.0";
+    
+    s.AddAuth(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
     {
         In = OpenApiSecurityApiKeyLocation.Header,
         Description = "Please insert JWT with Bearer into field",
@@ -64,10 +72,18 @@ builder.Services.AddSingleton<IConnectionPool, ConnectionPool>(_ => new Connecti
 
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IAttachmentImageRepository, AttachmentImageRepository>();
+builder.Services.AddSingleton<IToDoListRepository, ToDoListRepository>();
+builder.Services.AddSingleton<IToDoListItemRepository, ToDoListItemRepository>();
 
+builder.Services.AddCommandDefinitionBuilder<User>();
+builder.Services.AddCommandDefinitionBuilder<ImageAttachment>();
+builder.Services.AddCommandDefinitionBuilder<ToDoList>();
+builder.Services.AddCommandDefinitionBuilder<ToDoListItem>();
+    
 builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddTransient<IEncryptionService, EncryptionService>();
 builder.Services.AddTransient<IStorageImageService, StorageImageService>();
+builder.Services.AddTransient<IToDoListService, ToDoListService>();
 
 builder.Services.AddTransient<IStorageProvider, AzureStorageProvider>();
 
@@ -89,14 +105,19 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseMiddleware<ValidationExceptionMiddleware>();
-app.UseFastEndpoints(x =>
+app.UseFastEndpoints(c =>
 {
-    x.Errors.ResponseBuilder = (failures, _, _) =>
+    c.Errors.ResponseBuilder = (failures, _, _) =>
     {
         return new ValidationFailureResponse
         {
             Errors = failures.Select(y => y.ErrorMessage).ToList()
         };
+    };
+    c.Versioning.Prefix = "v";
+    c.Endpoints.Configurator = ep =>
+    {
+        ep.PreProcessors(Order.Before, new MyRequestLogger());
     };
 });
 
@@ -111,3 +132,13 @@ var runner = serviceScope.ServiceProvider.GetRequiredService<IMigrationRunner>()
 runner.MigrateUp();
 
 app.Run();
+
+public static class Extensions
+{
+    public static IServiceCollection AddCommandDefinitionBuilder<T>(this IServiceCollection services) where T : EntityBase
+    {
+        services.AddSingleton<ICommandDefinitionBuilder<T>, PostgresCommandDefinitionBuilder<T>>(
+            provider => new PostgresCommandDefinitionBuilder<T>(typeof(T).Name + "s"));
+        return services;
+    }
+}

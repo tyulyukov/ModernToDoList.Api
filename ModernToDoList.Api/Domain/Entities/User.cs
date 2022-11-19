@@ -1,8 +1,7 @@
-﻿namespace ModernToDoList.Api.Domain;
+﻿namespace ModernToDoList.Api.Domain.Entities;
 
-public class User
+public class User : EntityBase
 {
-    public string Id { get; set; } = default!;
     public string Username { get; set; } = default!;
     public string PasswordHash { get; set; } = default!;
     public string EmailAddress { get; set; } = default!;

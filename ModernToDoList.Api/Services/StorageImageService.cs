@@ -2,6 +2,7 @@
 using FluentValidation;
 using FluentValidation.Results;
 using ModernToDoList.Api.Domain;
+using ModernToDoList.Api.Domain.Entities;
 using ModernToDoList.Api.Domain.Providers;
 using ModernToDoList.Api.Repositories;
 using SixLabors.ImageSharp;

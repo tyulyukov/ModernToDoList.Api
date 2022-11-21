@@ -59,7 +59,7 @@ public class UserRepository : IUserRepository
         using var provider = _connectionPool.UseConnection();
         return await provider.Connection.QuerySingleOrDefaultAsync<User>(
             _commandDefinitionBuilder.CustomQuery(
-                    @"SELECT * FROM Users WHERE Username = @Username LIMIT 1", 
+                    @"SELECT * FROM {0} WHERE Username = @Username LIMIT 1", 
                     new { Username = username },
                     ct
                 ).Build());
@@ -70,7 +70,7 @@ public class UserRepository : IUserRepository
         using var provider = _connectionPool.UseConnection();
         return await provider.Connection.QuerySingleOrDefaultAsync<User>(
             _commandDefinitionBuilder.CustomQuery(
-                @"SELECT * FROM Users WHERE EmailAddress = @EmailAddress LIMIT 1", 
+                @"SELECT * FROM {0} WHERE EmailAddress = @EmailAddress LIMIT 1", 
                 new { EmailAddress = email },
                 ct
             ).Build());

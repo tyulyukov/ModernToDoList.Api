@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using ModernToDoList.Api.Domain.Contracts.Requests;
 using ModernToDoList.Api.Domain.Contracts.Responses;
 using ModernToDoList.Api.Repositories;
@@ -8,12 +9,12 @@ using ModernToDoList.Api.Services;
 
 namespace ModernToDoList.Api.Endpoints.ToDoList;
 
-public class CreateToDoListEndpoint : Endpoint<CreateToDoListRequest, CreateToDoListResponse>
+public class GetAllToDoListsEndpoint : EndpointWithoutRequest<IEnumerable<Domain.Entities.ToDoList>>
 {
     private readonly IUserRepository _userRepository;
     private readonly IToDoListService _toDoListService;
 
-    public CreateToDoListEndpoint(IUserRepository userRepository, IToDoListService toDoListService)
+    public GetAllToDoListsEndpoint(IUserRepository userRepository, IToDoListService toDoListService)
     {
         _userRepository = userRepository;
         _toDoListService = toDoListService;
@@ -21,12 +22,12 @@ public class CreateToDoListEndpoint : Endpoint<CreateToDoListRequest, CreateToDo
 
     public override void Configure()
     {
-        Post("/todolist/create");
+        Get("/todolist/all");
         AuthSchemes(JwtBearerDefaults.AuthenticationScheme);
         Version(1);
     }
 
-    public override async Task HandleAsync(CreateToDoListRequest request, CancellationToken ct)
+    public override async Task HandleAsync(CancellationToken ct)
     {
         var id = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
         var user = await _userRepository.GetAsync(id, ct);
@@ -37,15 +38,7 @@ public class CreateToDoListEndpoint : Endpoint<CreateToDoListRequest, CreateToDo
             return;
         }
 
-        var list = new Domain.Entities.ToDoList
-        {
-            Id = Guid.NewGuid().ToString(),
-            Title = request.Title,
-            Description = request.Description,
-            AuthorId = user.Id
-        };
-
-        await _toDoListService.CreateListAsync(list, ct);
-        await SendCreatedAtAsync<CreateToDoListEndpoint>(list, new CreateToDoListResponse { Id = list.Id }, cancellation: ct);
+        var lists = await _toDoListService.GetAllListsAsync(user.Id, ct);
+        await SendOkAsync(lists, ct);
     }
 }

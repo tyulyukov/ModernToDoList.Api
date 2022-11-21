@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Text;
+﻿using System.Text;
 using Dapper;
 using ModernToDoList.Api.Domain.Entities;
 
@@ -104,7 +103,7 @@ public class PostgresCommandDefinitionBuilder<TObj> : ICommandDefinitionBuilder<
     public ICommandDefinitionBuilder<TObj> CustomQuery(string query, object? obj = null, CancellationToken ct = default)
     {
         _commandDefinition = new CommandDefinition(
-            query, 
+            string.Format(query, _tableName),
             obj,
             cancellationToken: ct);
         return this;

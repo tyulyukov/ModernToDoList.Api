@@ -6,5 +6,6 @@ namespace ModernToDoList.Api.Repositories;
 
 public interface IToDoListRepository : ICrudRepository<ToDoList>
 {
-    
+    Task<ToDoList?> GetByIdAndAuthorIdAsync(string id, string authorId, CancellationToken ct);
+    Task<IEnumerable<ToDoList>> GetAllByAuthorIdAsync(string authorId, CancellationToken ct);
 }

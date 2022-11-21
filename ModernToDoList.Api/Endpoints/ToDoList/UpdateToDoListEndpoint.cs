@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using ModernToDoList.Api.Domain.Contracts.Requests;
 using ModernToDoList.Api.Domain.Contracts.Responses;
 using ModernToDoList.Api.Repositories;
@@ -8,12 +9,12 @@ using ModernToDoList.Api.Services;
 
 namespace ModernToDoList.Api.Endpoints.ToDoList;
 
-public class CreateToDoListEndpoint : Endpoint<CreateToDoListRequest, CreateToDoListResponse>
+public class UpdateToDoListEndpoint : Endpoint<UpdateToDoListRequest>
 {
     private readonly IUserRepository _userRepository;
     private readonly IToDoListService _toDoListService;
 
-    public CreateToDoListEndpoint(IUserRepository userRepository, IToDoListService toDoListService)
+    public UpdateToDoListEndpoint(IUserRepository userRepository, IToDoListService toDoListService)
     {
         _userRepository = userRepository;
         _toDoListService = toDoListService;
@@ -21,12 +22,12 @@ public class CreateToDoListEndpoint : Endpoint<CreateToDoListRequest, CreateToDo
 
     public override void Configure()
     {
-        Post("/todolist/create");
+        Put("/todolist/update/{Id}");
         AuthSchemes(JwtBearerDefaults.AuthenticationScheme);
         Version(1);
     }
 
-    public override async Task HandleAsync(CreateToDoListRequest request, CancellationToken ct)
+    public override async Task HandleAsync(UpdateToDoListRequest request, CancellationToken ct)
     {
         var id = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
         var user = await _userRepository.GetAsync(id, ct);
@@ -37,15 +38,23 @@ public class CreateToDoListEndpoint : Endpoint<CreateToDoListRequest, CreateToDo
             return;
         }
 
-        var list = new Domain.Entities.ToDoList
+        var list = await _toDoListService.GetListAsync(request.Id, user.Id, ct);
+
+        if (list is null)
         {
-            Id = Guid.NewGuid().ToString(),
+            await SendNotFoundAsync(ct);
+            return;
+        }
+        
+        var updatedList = new Domain.Entities.ToDoList
+        {
+            Id = request.Id,
             Title = request.Title,
             Description = request.Description,
             AuthorId = user.Id
         };
 
-        await _toDoListService.CreateListAsync(list, ct);
-        await SendCreatedAtAsync<CreateToDoListEndpoint>(list, new CreateToDoListResponse { Id = list.Id }, cancellation: ct);
+        await _toDoListService.UpdateListAsync(updatedList, ct);
+        await SendOkAsync(updatedList, ct);
     }
 }

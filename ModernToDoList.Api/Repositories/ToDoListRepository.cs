@@ -53,4 +53,26 @@ public class ToDoListRepository : IToDoListRepository
             _commandDefinitionBuilder.DeleteQuery(id, ct).Build());
         return result > 0;
     }
+
+    public async Task<ToDoList?> GetByIdAndAuthorIdAsync(string id, string authorId, CancellationToken ct)
+    {
+        using var provider = _connectionPool.UseConnection();
+        return await provider.Connection.QuerySingleOrDefaultAsync<ToDoList>(
+            _commandDefinitionBuilder.CustomQuery(
+                @"SELECT * FROM {0} WHERE (Id = @Id AND AuthorId = @AuthorId) LIMIT 1", 
+                new { Id = id, AuthorId = authorId },
+                ct
+            ).Build());
+    }
+
+    public async Task<IEnumerable<ToDoList>> GetAllByAuthorIdAsync(string authorId, CancellationToken ct)
+    {
+        using var provider = _connectionPool.UseConnection();
+        return await provider.Connection.QueryAsync<ToDoList>(
+            _commandDefinitionBuilder.CustomQuery(
+                @"SELECT * FROM {0} WHERE (AuthorId = @AuthorId)", 
+                new { AuthorId = authorId },
+                ct
+            ).Build());
+    }
 }
